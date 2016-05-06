@@ -2,13 +2,10 @@ FROM ubuntu:16.04
 
 RUN apt-get update && \
     apt-get install -y \
-      python3 python3-pip \
-      build-essential libboost-all-dev && \
+      python3 python3-pip python3-pil \
+      build-essential libboost-all-dev \
+      clang pkg-config && \
     python3 -m pip install jupyter
-
-RUN apt-get install -y clang
-RUN apt-get install -y pkg-config
-RUN apt-get install -y python3-pil
 
 RUN mkdir /python-modules
 ADD fakerepl_kernel /python-modules/fakerepl_kernel
