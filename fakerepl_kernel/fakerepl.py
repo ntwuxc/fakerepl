@@ -29,7 +29,7 @@ auto TPRINT_ONE(std::ostream &stream, const T &value) -> decltype(stream << valu
 template<typename S, typename T>
 void TPRINT_ONE(S &stream, const T &value)
 {
-    return stream << "[" << boost::typeindex::type_id<T>().pretty_name() << "]";
+    stream << "[" << boost::typeindex::type_id<T>().pretty_name() << "]";
 }
 
 template<typename T>
