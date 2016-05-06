@@ -60,7 +60,7 @@ def install_my_kernel_spec(user=True):
     env = { "CXX" : find_compiler(),
             "CPPFLAGS" : quote_list(find_boost_cppflags()),
             "LDFLAGS" : quote_list(ldflags),
-            "RUNTIME_LIB_PATH" : quote_list(ld_lib_path) }
+            "RUNTIME_LIB_PATH" : '' }
     with TemporaryDirectory() as td:
         os.chmod(td, 0o755) # Starts off as 700, not user readable
         with open(os.path.join(td, 'kernel.json'), 'w') as f:

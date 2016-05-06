@@ -16,6 +16,7 @@ from functools import partial
 prelude = """
 #include <iostream>
 #include <boost/type_index.hpp>
+#include <prettyprint.hpp>
 
 namespace fakerepl {
 
@@ -103,7 +104,7 @@ class ChunkList(object):
 class FakeRepl(object):
     magic_re = re.compile(r'^\s*%\s*(\S+)(.*)$', re.DOTALL)
     print_shell_re = re.compile(r'^\s*([!?])(.*)$', re.DOTALL)
-    magics = "print shell action do type reset ldflags cppflags pwd cd pkg-config"
+    magics = "print shell action do type reset ldflags cppflags pwd cd pkg-config mark"
     obj_extension = ".o"
     exe_extension = ""
     compiler = "clang++"
@@ -119,6 +120,7 @@ class FakeRepl(object):
         self.error_display = error_display
         self.compiler = os.getenv("CXX")
         self.cppflags = tuple(shlex.split(os.getenv("CPPFLAGS")))
+        self.cppflags = self.cppflags + ("-I", os.path.join(os.path.dirname(__file__), "include"))
         self.ldflags = tuple(shlex.split(os.getenv("LDFLAGS")))
         self.magics = self.process_magics(self.magics.split())
         self.image_files = {
@@ -232,6 +234,16 @@ class FakeRepl(object):
         chunk = "int %s = ([](){\n%s\n;return 0;})();\n" % (self.fresh_name(), args)
         self.process_chunk(chunk, add_chunk=True, run_code=False)
 
+    def mark_magic(self, args):
+        mark, code = args.split(None, 1)
+        saved_chunks = self.marks.get(mark)
+        if saved_chunks is not None:
+            self.chunks = saved_chunks
+        else:
+            saved_chunks = self.chunks
+        self.process_chunk(code)
+        self.marks[mark] = saved_chunks
+
     def pkg_config_magic(self, args):
         args = args.split()
         try:
@@ -254,6 +266,7 @@ class FakeRepl(object):
 
 
     def reset_magic(self, args):
+        self.marks = {}
         self.chunks = ChunkList(self.image_files)
         self.counter = 0
         self.pkg_config = set()
