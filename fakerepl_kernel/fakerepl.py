@@ -23,15 +23,14 @@ namespace fakerepl {
 template<typename T>
 auto TPRINT_ONE(std::ostream &stream, const T &value) -> decltype(stream << value)
 {
-    return stream << value;
+    return stream << "[" << boost::typeindex::type_id<T>().pretty_name() << "]: " << value;
 }
 
 template<typename S, typename T>
 void TPRINT_ONE(S &stream, const T &value)
 {
-    stream << "some " << boost::typeindex::type_id<T>().pretty_name();
+    return stream << "[" << boost::typeindex::type_id<T>().pretty_name() << "]";
 }
-
 
 template<typename T>
 auto TPRINT(const T &value)
