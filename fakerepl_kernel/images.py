@@ -1,5 +1,6 @@
 import base64
-import imghdr
+from PIL import Image
+from io import BytesIO
 import os
 
 #from IPython.
@@ -15,18 +16,15 @@ display () {
 """ % _TEXT_SAVED_IMAGE
 
 def display_data_for_image(filename):
-    with open(filename, 'rb') as f:
-        image = f.read()
+    image = Image.open(filename)
     os.unlink(filename)
+    f = BytesIO()
+    image.save(f, "png")
 
-    image_type = imghdr.what(None, image)
-    if image_type is None:
-        raise ValueError("Not a valid image: %s" % image)
-
-    image_data = base64.b64encode(image).decode('ascii')
+    image_data = base64.b64encode(f.getvalue()).decode('ascii')
     content = {
         'data': {
-            'image/' + image_type: image_data
+            'image/png' : image_data
         },
         'metadata': {}
     }

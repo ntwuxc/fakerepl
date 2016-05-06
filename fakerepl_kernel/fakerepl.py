@@ -68,7 +68,7 @@ print_function = """
 """
 
 image_files = {
-        "PNG_OUTPUT_FILE": "out.png"
+        "IMAGE_OUTPUT_FILE": "out.image"
         }
 
 class ChunkList(object):
@@ -104,7 +104,7 @@ class ChunkList(object):
 class FakeRepl(object):
     magic_re = re.compile(r'^\s*%\s*(\S+)(.*)$', re.DOTALL)
     print_shell_re = re.compile(r'^\s*([!?])(.*)$', re.DOTALL)
-    magics = "print shell action do type reset ldflags cppflags pwd cd pkg-config mark"
+    magics = "print shell action do type reset ldflags cppflags pwd cd pkg-config mark verbose"
     obj_extension = ".o"
     exe_extension = ""
     compiler = "clang++"
@@ -112,6 +112,7 @@ class FakeRepl(object):
 
     cppflags = ()
     ldflags = ()
+    verbose = False
 
     def __init__(self, display, error_display):
         self.tempdir = tempfile.TemporaryDirectory()
@@ -171,6 +172,13 @@ class FakeRepl(object):
     def cppflags_magic(self, args):
         if self.process_variable("cppflags", args):
             self.chunks.reset_precompiled_headers()
+
+    def verbose_magic(self, args):
+        args = args.strip()
+        if args == "":
+            self.display("verbose %s" % ("on" if self.verbose else "off"))
+        else:
+            self.verbose = (args == "on")
 
     def eval(self, code):
         try:
@@ -275,8 +283,9 @@ class FakeRepl(object):
     def compile_file(self, filename, objfile, extra_flags=()):
         cppflags = self.cppflags
         args = (self.compiler,) + extra_flags + self.compiler_flags + cppflags + \
-                ("-c", os.path.basename(filename), "-o", objfile) 
-#        self.display(" ".join(args))
+                ("-c", filename, "-o", objfile) 
+        if self.verbose:
+            self.display(" ".join(shlex.quote(arg) for arg in args))
 
         compile_call = partial(subprocess.run, args,
                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
