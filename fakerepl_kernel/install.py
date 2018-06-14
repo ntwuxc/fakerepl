@@ -48,7 +48,7 @@ def find_boost_ldflags():
 
 def make_kernel_json(env):
     return {"argv":[sys.executable,"-m","fakerepl_kernel", "-f", "{connection_file}"],
-     "display_name":"fakerepl",
+     "display_name":"c++",
      "language":"C++",
      "codemirror_mode":"C++",
      "env": env
@@ -68,7 +68,7 @@ def install_my_kernel_spec(user=True):
         # TODO: Copy resources once they're specified
 
         print('Installing IPython kernel spec')
-        install_kernel_spec(td, 'fakerepl', user=user, replace=True)
+        install_kernel_spec(td, 'c++', user=user, replace=True)
     for name in sorted(env):
         print("%s=%s" % (name, env[name]))
 
